@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instagram Unfollow Checker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<video autoplay muted loop id="bg-video">
+  <source src="minecraft-dog.mp4" type="video/mp4">
+</video>
+
+<div id="toast">Username disalin ke clipboard</div>
+
+<div class="container max-w-4xl mx-auto px-6 py-12">
+
+  <header class="text-center mb-10 fade-up text-box-card p-8 md:p-10">
+    <div class="inline-flex items-center mb-4 px-3 py-1 rounded-full text-xs tracking-wider font-semibold uppercase" style="background: rgba(14, 116, 144, 0.08); color: var(--text-muted); font-size: 0.65rem;">
+      Instagram Analysis Tool
+    </div>
+    <h1 class="text-4xl md:text-5xl font-bold mb-3 tracking-wide" style="color: var(--text-dark);">
+      Unfollow Checker
+    </h1>
+    <p class="text-sm max-w-md mx-auto leading-relaxed font-medium" style="color: var(--text-muted);">
+      Temukan akun yang tidak mengikuti Anda kembali dengan aman menggunakan file data resmi Instagram Anda.
+    </p>
+  </header>
+
+  <div class="security-note p-4 mb-8 flex gap-3 items-center fade-up delay-1">
+    <svg class="w-4 h-4 flex-shrink-0" style="color: #4ade80;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+    <p class="text-xs font-semibold" style="color: #e2f8f0; margin: 0;">
+      <strong class="font-bold" style="color: #4ade80;">Privasi Terjamin.</strong> Semua data diproses langsung di browser Anda dan tidak pernah dikirim ke server mana pun.
+    </p>
+  </div>
+
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 fade-up delay-2">
+    <div class="upload-card p-6" id="card-followers">
+      <div class="flex items-center gap-2 mb-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted);">File Followers</h3>
+        <span class="badge badge-pending ml-auto" id="badge-followers">Belum dimuat</span>
+      </div>
+      <div class="drop-zone p-8 text-center" id="zone-followers" onclick="document.getElementById('input-followers').click()">
+        <svg class="w-6 h-6 mx-auto mb-2" style="color: var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        <p class="text-xs font-bold mb-1" style="color: var(--text-dark)">Pilih atau drop file</p>
+        <p class="text-[11px] font-medium" style="color: var(--text-muted)">followers_1.json</p>
+        <input type="file" id="input-followers" accept=".json" class="hidden" onchange="handleFile(event, 'followers')" />
+      </div>
+      <p id="info-followers" class="mt-3 text-[11px] font-semibold" style="min-height: 16px; color: var(--text-muted);"></p>
+    </div>
+
+    <div class="upload-card p-6" id="card-following">
+      <div class="flex items-center gap-2 mb-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted);">File Following</h3>
+        <span class="badge badge-pending ml-auto" id="badge-following">Belum dimuat</span>
+      </div>
+      <div class="drop-zone p-8 text-center" id="zone-following" onclick="document.getElementById('input-following').click()">
+        <svg class="w-6 h-6 mx-auto mb-2" style="color: var(--text-muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        <p class="text-xs font-bold mb-1" style="color: var(--text-dark)">Pilih atau drop file</p>
+        <p class="text-[11px] font-medium" style="color: var(--text-muted)">following.json</p>
+        <input type="file" id="input-following" accept=".json" class="hidden" onchange="handleFile(event, 'following')" />
+      </div>
+      <p id="info-following" class="mt-3 text-[11px] font-semibold" style="min-height: 16px; color: var(--text-muted);"></p>
+    </div>
+  </section>
+
+  <div class="text-center mb-12 fade-up delay-3">
+    <button class="btn-primary px-8 py-3 text-sm tracking-wide font-medium" id="btn-analyze" onclick="analyze()" disabled>
+      Mulai Analisis
+    </button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="grid grid-cols-3 gap-5 mb-8" id="stats-grid"></div>
+    
+    <div class="flex flex-col sm:flex-row gap-3 mb-4 items-center justify-between">
+      <h2 class="text-sm font-bold tracking-tight uppercase" style="color: var(--text-muted);">Daftar Tidak Followback</h2>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <input type="text" class="search-input flex-1 sm:w-60 px-3 py-1.5" id="search-input" placeholder="Cari akun..." oninput="filterTable()" />
+        <button class="btn-ghost px-4 py-1.5 text-xs whitespace-nowrap" onclick="copyAll()">Salin Semua</button>
+      </div>
+    </div>
+    
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; max-height: 480px; overflow-y: auto; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);">
+      <table class="result-table w-full" id="result-table">
+        <thead>
+          <tr>
+            <th class="text-left" style="width: 60px">#</th>
+            <th class="text-left">Username</th>
+            <th class="text-right">Tautan</th>
+          </tr>
+        </thead>
+        <tbody id="result-body"></tbody>
+      </table>
+    </div>
+    <p class="text-xs mt-3 text-center font-medium" id="result-count" style="color: var(--text-muted)"></p>
+  </div>
+
+  <div class="how-to-section mt-16 p-8 rounded-2xl">
+    <h2 class="text-xs font-bold mb-8 text-center tracking-widest uppercase" style="color: var(--text-muted);">Cara Mendapatkan File JSON</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div class="how-to-card p-5 rounded-xl border border-dashed">
+        <p class="text-xs font-bold mb-2 uppercase tracking-wide" style="color: var(--text-dark)">01 / Masuk Menu</p>
+        <p class="text-xs leading-relaxed font-medium" style="color: var(--text-muted);">Buka Instagram → Pengaturan & Privasi → Pusat Akun → Informasi Pribadimu.</p>
+      </div>
+      <div class="how-to-card p-5 rounded-xl border border-dashed">
+        <p class="text-xs font-bold mb-2 uppercase tracking-wide" style="color: var(--text-dark)">02 / Unduh Data</p>
+        <p class="text-xs leading-relaxed font-medium" style="color: var(--text-muted);">Pilih Unduh Informasimu, pilih format <strong class="font-extrabold text-cyan-800">JSON</strong>, lalu ajukan permintaan unduhan.</p>
+      </div>
+      <div class="how-to-card p-5 rounded-xl border border-dashed">
+        <p class="text-xs font-bold mb-2 uppercase tracking-wide" style="color: var(--text-dark)">03 / Ekstrak File</p>
+        <p class="text-xs leading-relaxed font-medium" style="color: var(--text-muted);">Ekstrak file ZIP dan cari file di dalam folder <code>connections/followers_and_following/</code></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center mt-12 text-[11px] tracking-wide footer-box p-4 rounded-xl font-medium">
+    Aplikasi Client-side · Seluruh data Anda tetap aman secara lokal di perangkat Anda.
+  </footer>
+</div>
+
+<script>
+  const state = { followers: null, following: null, unfollowers: [] };
+
+  ['followers', 'following'].forEach(type => {
+    const zone = document.getElementById(`zone-${type}`);
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragneave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) processFile(file, type);
+    });
+  });
+
+  function handleFile(event, type) {
+    const file = event.target.files[0];
+    if (file) processFile(file, type);
+  }
+
+  function processFile(file, type) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const raw = JSON.parse(e.target.result);
+        const usernames = extractUsernames(raw, type);
+        if (!usernames || usernames.length === 0) throw new Error('Format file tidak valid.');
+        state[type] = usernames;
+        markLoaded(type, usernames.length, file.name);
+        checkReady();
+      } catch (err) {
+        showError(type, err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function extractUsernames(data, type) {
+    let arr = null;
+    if (Array.isArray(data)) {
+      arr = data;
+    } else if (data && typeof data === 'object') {
+      const knownKeys = ['relationships_following', 'relationships_followers', 'followers', 'following'];
+      for (const k of knownKeys) {
+        if (Array.isArray(data[k])) { arr = data[k]; break; }
+      }
+      if (!arr) {
+        for (const k of Object.keys(data)) {
+          if (Array.isArray(data[k])) { arr = data[k]; break; }
+        }
+      }
+    }
+    if (!arr) return null;
+
+    const result = [];
+    for (const item of arr) {
+      if (!item || typeof item !== 'object') continue;
+      if (Array.isArray(item.string_list_data) && item.string_list_data[0] && item.string_list_data[0].value) {
+        result.push(item.string_list_data[0].value);
+        continue;
+      }
+      if (item.title && typeof item.title === 'string' && item.title.trim() !== '') {
+        result.push(item.title.trim());
+        continue;
+      }
+    }
+    return result.length ? result : null;
+  }
+
+  function markLoaded(type, count, filename) {
+    document.getElementById(`card-${type}`).classList.add('loaded');
+    const badge = document.getElementById(`badge-${type}`);
+    badge.className = 'badge badge-success ml-auto';
+    badge.textContent = `${count} Akun`;
+    const info = document.getElementById(`info-${type}`);
+    info.textContent = `✓ ${filename}`;
+    info.style.color = '#0284c7';
+  }
+
+  function showError(type, msg) {
+    const info = document.getElementById(`info-${type}`);
+    info.textContent = `Gagal: ${msg}`;
+    info.style.color = '#e11d48';
+  }
+
+  function checkReady() {
+    document.getElementById('btn-analyze').disabled = !(state.followers && state.following);
+  }
+
+  function analyze() {
+    const followerSet = new Set(state.followers.map(u => u.toLowerCase()));
+    state.unfollowers = state.following.filter(u => !followerSet.has(u.toLowerCase()));
+    renderStats();
+    renderTable(state.unfollowers);
+    document.getElementById('results').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function renderStats() {
+    const stats = [
+      { label: 'Following', value: state.following.length },
+      { label: 'Followers', value: state.followers.length },
+      { label: 'Tidak Followback', value: state.unfollowers.length },
+    ];
+    document.getElementById('stats-grid').innerHTML = stats.map((s, i) => `
+      <div class="stat-card p-5 ${i === 2 && s.value > 0 ? 'highlight' : ''}">
+        <div class="text-2xl font-bold mb-1" style="color: var(--text-dark)">${s.value.toLocaleString('id-ID')}</div>
+        <div class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-muted)">${s.label}</div>
+      </div>
+    `).join('');
+  }
+
+  let filtered = [];
+
+  function renderTable(list) {
+    filtered = list;
+    const tbody = document.getElementById('result-body');
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center py-12 text-xs font-semibold" style="color: var(--text-muted)">Semua orang mengikuti Anda kembali. ✨</td></tr>`;
+      document.getElementById('result-count').textContent = '';
+      return;
+    }
+    tbody.innerHTML = list.map((u, i) => `
+      <tr>
+        <td class="text-xs font-semibold" style="color: var(--text-muted)">${i + 1}</td>
+        <td><span class="font-bold text-sm" style="color: var(--text-dark)">@${escHtml(u)}</span></td>
+        <td class="text-right">
+          <a href="https://instagram.com/${encodeURIComponent(u)}" target="_blank" rel="noopener noreferrer"
+            class="text-xs font-bold hover:underline transition-all" style="color: #0284c7">
+            Profil ↗
+          </a>
+        </td>
+      </tr>
+    `).join('');
+    document.getElementById('result-count').textContent = `Menampilkan ${list.length} dari ${state.unfollowers.length} pengguna`;
+  }
+
+  function filterTable() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    renderTable(q ? state.unfollowers.filter(u => u.toLowerCase().includes(q)) : state.unfollowers);
+  }
+
+  function copyAll() {
+    const list = filtered.length ? filtered : state.unfollowers;
+    const text = list.map(u => `@${u}`).join('\n');
+    navigator.clipboard.writeText(text).then(showToast);
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
